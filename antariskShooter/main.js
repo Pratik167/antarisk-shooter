@@ -10,39 +10,48 @@ canvas.height=window.innerHeight;
 
 const score=document.getElementById("score");
 const life=document.getElementById("life");
+const enemyCount=document.getElementById("enemyCount");
+const room=document.getElementById("level");
 
 const ship=new Ship(ctx, canvas);
 const bullets=[];
 
 const enemies=[];
-const maxEnemy=3;
+let maxEnemy=0;
+let eLeft=maxEnemy;
+let levels=0;
 
 let count=0;
-let lives=2;
+let lives=5;
 
+enemyCount.textContent="Enemy Left:"+eLeft;
 score.textContent="Score:"+count;
 life.textContent="Lives:"+lives;
+room.textContent="Level:"+levels;
 
-
-
-  // for (let i=0;i<maxEnemy;i++){
-  //   const e=new Enemy(ctx,canvas);
-  //   e.position.x=Math.floor(Math.random()*(canvas.width-e.size.width));
-  //   e.position.y=Math.floor(Math.random()*-200);
-  //   enemies.push(e);
-  // }
-
-
-
-  setInterval(function(){
-    for(let i=0;i<maxEnemy;i++){
-      const e=new Enemy(ctx,canvas);
-      e.position.x=Math.floor(Math.random()*(canvas.width-e.size.width));
-      e.position.y=Math.floor(Math.random()*-100);
-      enemies.push(e);
-    }
-  },5000);
-
+// levl haru 
+function level(){
+maxEnemy+=2; // harek level increment ma kati enemy badne
+eLeft=maxEnemy;
+levels+=1;
+room.textContent="Level:"+levels;
+enemyCount.textContent="Enemy Left:"+eLeft;
+  for(let i=0;i<maxEnemy;i++){
+        const e=new Enemy(ctx,canvas);
+        e.position.x=Math.floor(Math.random()*(canvas.width-e.size.width));
+        e.position.y=Math.floor(Math.random()*-100);
+        enemies.push(e);
+      }
+}
+level();
+  // setInterval(function(){
+  //   for(let i=0;i<maxEnemy;i++){
+  //     const e=new Enemy(ctx,canvas);
+  //     e.position.x=Math.floor(Math.random()*(canvas.width-e.size.width));
+  //     e.position.y=Math.floor(Math.random()*-100);
+  //     enemies.push(e);
+  //   }
+  // },5000);
 
 
 //bullet spawn ra haraunee
@@ -62,13 +71,24 @@ function bulletSpawn(){
           if(bullets[i].position.x>=enemy.position.x&&bullets[i].position.x<enemy.position.x+enemy.size.width&&
             bullets[i].position.y>enemy.position.y&&bullets[i].position.y<enemy.position.y+enemy.size.height)
           {
+            enemy.healthBar-=25;
+            enemy.life--;
             const hitt=new Audio("bomboclat.ogg");
             hitt.play();
             bullets[i].bulletHit=true;
-            enemy.isBlast=true;
-            
+            if(enemy.life==0)
+            {
+              enemy.isBlast=true;
+              eLeft--;
+              count+=1;
+            }
+            enemyCount.textContent="Enemy Left:"+eLeft;
+            if(eLeft==0)
+            {
+              level();
+            }
 
-            count+=1;
+            
             score.textContent="Score:"+count;
             console.log("layo");
           }
@@ -89,6 +109,16 @@ function enemySpawn(){
     let enemy=enemies[i];
     enemy.update();
     enemy.draw();
+    ctx.beginPath();
+    if (enemy.position.y>0){
+    ctx.fillStyle = "red";
+    ctx.fillRect(
+    enemy.position.x,
+    enemy.position.y-10,
+    enemy.healthBar,
+    enemy.size.height-40,
+  );
+}
     if (enemy.position.y>canvas.height||(enemy.position.x<ship.position.x+ship.size.width&&
       enemy.position.x+enemy.size.width>ship.position.x&&
       enemy.position.y<ship.position.y+ship.size.height&&
@@ -98,17 +128,27 @@ function enemySpawn(){
         const oof=new Audio("oof.ogg");
        oof.play();
        enemies.splice(i,1);
+       eLeft--;
+        enemyCount.textContent="Enemy Left:"+eLeft;
+        if(eLeft==0)
+            {
+              level();
+            }
       // enemy.position.y=Math.floor(Math.random()*-200);
       // enemy.position.x=Math.floor(Math.random()*(canvas.width-enemy.size.width));
-      if(lives==0)
-      {
+      if(lives<=0)
+      {alert("Game Over");
         count=0;
         score.textContent="Score:"+count;
         life.textContent="Lives:"+lives;
-        alert("Game Over");
         enemies.splice(0,enemies.length);
         lives=2;
         life.textContent="Lives:"+lives;
+        maxEnemy=0;
+        eLeft=maxEnemy;
+        enemyCount.textContent="Enemy Left:"+eLeft;
+        levels=0;
+        level();
       }
       
     }
@@ -149,14 +189,20 @@ function moving(event){
     {
       ship.moveDown();
     }
-    if(keys[" "])
-      {
-      pellet();
-    } 
+    // if(keys[" "])
+    //   {
+    //   pellet();
+    // } 
 };
 document.addEventListener("keyup",(event)=>
 {keys[event.key]=false})    
 
+document.addEventListener("keyup",(e)=>{
+  if(e.key==" ")
+  {
+    pellet();
+  }
+})
 
 //click garda bullter aauxa
 function pellet(){
@@ -189,6 +235,7 @@ setInterval(function(){
     moving();
     bulletSpawn();
     ship.draw();
+    
   }
   
   gameLoop();

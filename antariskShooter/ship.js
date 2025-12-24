@@ -10,7 +10,7 @@ class Ship{
       width:60,
       height:60,
     };
-    this.speed=20;
+    this.speed=3;
 
     this.image= new Image();
     this.image.src="shooterplane2.png";
