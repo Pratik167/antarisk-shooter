@@ -47,16 +47,16 @@ life.textContent="Lives:"+lives;
 
 //bullet spawn ra haraunee
 function bulletSpawn(){
-  let bulletHit=false;
+
 
   for (let i=bullets.length-1;i>=0;i--){ 
     
-      if (bullets[i].position.y<10||bulletHit) {
+      if (bullets[i].position.y<10||bullets[i].bulletHit) {
         { 
           bullets.splice(i,1); 
         } 
       }
-      else if(!bulletHit){
+      else if(!bullets[i].bulletHit){
         for(let j=0;j<enemies.length;j++){
           let enemy=enemies[j];
           if(bullets[i].position.x>=enemy.position.x&&bullets[i].position.x<enemy.position.x+enemy.size.width&&
@@ -64,7 +64,7 @@ function bulletSpawn(){
           {
             const hitt=new Audio("bomboclat.ogg");
             hitt.play();
-            bulletHit=true;
+            bullets[i].bulletHit=true;
             enemy.isBlast=true;
             
 
@@ -81,15 +81,6 @@ function bulletSpawn(){
 
 
 
-function gameLoop(){
-  requestAnimationFrame(gameLoop);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  enemySpawn();
-  bulletSpawn();
-  ship.draw();
-}
-
-gameLoop();
 
 
 // gunda aaune ra goli soli lagne
@@ -102,11 +93,11 @@ function enemySpawn(){
       enemy.position.x+enemy.size.width>ship.position.x&&
       enemy.position.y<ship.position.y+ship.size.height&&
       enemy.position.y+enemy.size.height>ship.position.y)){
-      lives--;
-      life.textContent="Lives:"+lives;
-      const oof=new Audio("oof.ogg");
+        lives--;
+        life.textContent="Lives:"+lives;
+        const oof=new Audio("oof.ogg");
        oof.play();
-      enemies.splice(i,1);
+       enemies.splice(i,1);
       // enemy.position.y=Math.floor(Math.random()*-200);
       // enemy.position.x=Math.floor(Math.random()*(canvas.width-enemy.size.width));
       if(lives==0)
@@ -129,7 +120,7 @@ function enemySpawn(){
       // ctx.drawImage(blastImage,enemy.position.x,enemy.position.y,enemy.size.width,enemy.size.height);
       // enemy.position.y=Math.floor(Math.random()*-200);
       // enemy.position.x=Math.floor(Math.random()*(canvas.width-enemy.size.width));
-
+      
     }
 
     
@@ -139,35 +130,39 @@ function enemySpawn(){
 
 
 // chalne kura
-document.addEventListener("keydown",(event)=>{
-  if (event.key=="a"||event.key=="A"||event.key=="ArrowLeft")
-    {
+let keys=[];
+document.addEventListener("keydown",(event)=>
+  {keys[event.key]=true})
+function moving(event){
+  if (keys["a"]||keys["A"]||keys["ArrowLeft"]){
       ship.moveLeft();
     } 
-  if (event.key=="d"||event.key=="D"||event.key=="ArrowRight")
+  if (keys["d"]||keys["D"]||keys["ArrowRight"])
     {
       ship.moveRight();
     } 
-  if (event.key=="w"||event.key=="W"||event.key=="ArrowUp")
-    {
-      ship.moveUp();
+    if (keys["w"]||keys["W"]||keys["ArrowUp"])
+      {
+        ship.moveUp();
     } 
-  if (event.key=="s"||event.key=="S"||event.key=="ArrowDown")
+  if (keys["s"]||keys["S"]||keys["ArrowDown"])
     {
       ship.moveDown();
     }
-    if(event.key==" ")
-    {
+    if(keys[" "])
+      {
       pellet();
     } 
-});
+};
+document.addEventListener("keyup",(event)=>
+{keys[event.key]=false})    
 
 
 //click garda bullter aauxa
 function pellet(){
   const fire=new Audio("pellet.ogg");
   fire.play();
-
+  
   const newBullet=new Bullet(ctx,canvas,
     ship.position.x+(ship.size.width/2)-10,
     ship.position.y-10
@@ -182,6 +177,18 @@ const theme=new Audio("theme.mp3");
 theme.play();
 
 setInterval(function(){
-    
+  
   theme.play();
   },15000);
+
+
+  function gameLoop(){
+    requestAnimationFrame(gameLoop);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    enemySpawn();
+    moving();
+    bulletSpawn();
+    ship.draw();
+  }
+  
+  gameLoop();

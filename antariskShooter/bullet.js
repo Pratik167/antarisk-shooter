@@ -11,7 +11,7 @@ class Bullet{
       height:20,
     };
     this.speed=2;
-
+    this.bulletHit=false;
     this.image= new Image();
     this.image.src="spaceBullet.png";
   }
