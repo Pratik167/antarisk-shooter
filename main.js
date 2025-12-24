@@ -8,6 +8,18 @@ const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
+
+
+const theme=new Audio("theme.mp3");
+theme.play();
+
+setInterval(function(){
+  
+  theme.play();
+  },15000);
+
+
+  
 const score=document.getElementById("score");
 const life=document.getElementById("life");
 const enemyCount=document.getElementById("enemyCount");
@@ -219,13 +231,7 @@ function pellet(){
 
 document.addEventListener("click", pellet);
 
-const theme=new Audio("theme.mp3");
-theme.play();
 
-setInterval(function(){
-  
-  theme.play();
-  },15000);
 
 
   function gameLoop(){
