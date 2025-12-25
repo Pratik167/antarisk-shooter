@@ -5,21 +5,24 @@ import Ship from "./ship.js";
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 
+canvas.style.backgroundImage = "url('space.jpg')";
+
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
-
+let tt=1;
 
 const theme=new Audio("theme.mp3");
-theme.play();
+const boosTheme= new Audio("bossMusic2.mp3");
+// theme.play();
 
-setInterval(function(){
-  
-  theme.play();
-  },15000);
+// setInterval(function(){
+//   tt=15000;
+//   theme.play();
+//   },tt);
 
 
-  
+
 const score=document.getElementById("score");
 const life=document.getElementById("life");
 const enemyCount=document.getElementById("enemyCount");
@@ -29,9 +32,11 @@ const ship=new Ship(ctx, canvas);
 const bullets=[];
 
 const enemies=[];
+let levels=1;
 let maxEnemy=0;
 let eLeft=maxEnemy;
-let levels=0;
+
+let isBoss=false;
 
 let count=0;
 let lives=5;
@@ -43,17 +48,56 @@ room.textContent="Level:"+levels;
 
 // levl haru 
 function level(){
-maxEnemy+=2; // harek level increment ma kati enemy badne
+  if(levels%2==0)// image loads in levels+1 so if boss in lvl 10 set 9 
+  {
+    isBoss=true;
+    canvas.style.backgroundImage = "url('bosslevel.png')";
+    theme.pause();
+    boosTheme.play();
+  }
+  else{
+    isBoss=false;
+    boosTheme.pause();
+    theme.play();
+
+    canvas.style.backgroundImage = "url('space.jpg')";
+  }
+maxEnemy=levels*2; // harek level increment ma kati enemy badne
 eLeft=maxEnemy;
-levels+=1;
 room.textContent="Level:"+levels;
+levels+=1;
 enemyCount.textContent="Enemy Left:"+eLeft;
+if(isBoss==true)
+{
+  maxEnemy=1;
+  eLeft=maxEnemy;
+  enemyCount.textContent="Enemy Left:"+eLeft;
+  for(let i=0;i<maxEnemy;i++){
+        const e=new Enemy(ctx,canvas);
+        e.position.x=Math.floor(Math.random()*(canvas.width-e.size.width));
+        e.position.y=Math.floor(Math.random()*-100);
+        e.life=5;
+        e.speed=0.1;
+        ctx.beginPath();
+        ctx.fillStyle = "blue";
+        ctx.fillRect(
+          e.position.x,
+          e.position.y-10,
+          5,
+          e.size.height-40,
+        );
+        enemies.push(e);
+      }
+}
+else{
+
   for(let i=0;i<maxEnemy;i++){
         const e=new Enemy(ctx,canvas);
         e.position.x=Math.floor(Math.random()*(canvas.width-e.size.width));
         e.position.y=Math.floor(Math.random()*-100);
         enemies.push(e);
       }
+}
 }
 level();
   // setInterval(function(){
@@ -88,7 +132,7 @@ function bulletSpawn(){
             const hitt=new Audio("bomboclat.ogg");
             hitt.play();
             bullets[i].bulletHit=true;
-            if(enemy.life==0)
+            if(enemy.life==0||enemy.healthBar==0)
             {
               enemy.isBlast=true;
               eLeft--;
@@ -119,6 +163,12 @@ function bulletSpawn(){
 function enemySpawn(){
   for (let i=0;i<enemies.length; i++){
     let enemy=enemies[i];
+    // if(isBoss==true)
+    // {
+    //   // enemy.speed=0.1;
+    //   enemy.life=5;
+      
+    // }
     enemy.update();
     enemy.draw();
     ctx.beginPath();
@@ -167,11 +217,6 @@ function enemySpawn(){
     if(enemy.isBlast){
       console.log("moryo");
       enemies.splice(i,1);
-      // const blastImage = new Image();
-      // blastImage.src = "blast.png";
-      // ctx.drawImage(blastImage,enemy.position.x,enemy.position.y,enemy.size.width,enemy.size.height);
-      // enemy.position.y=Math.floor(Math.random()*-200);
-      // enemy.position.x=Math.floor(Math.random()*(canvas.width-enemy.size.width));
       
     }
 

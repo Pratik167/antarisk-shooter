@@ -11,8 +11,8 @@ class Enemy {
       width:50,
       height:50,
     };
-    this.healthBar=50;
     this.life=2;
+    this.healthBar=this.life*25;
     this.color = "black";
     this.speed = 0.5;
     this.direction = {

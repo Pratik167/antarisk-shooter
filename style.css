@@ -7,7 +7,7 @@ body{
 }
 #canvas {
   border: 1px solid black;
-  background-image: url("space.jpg");
+  /* background-image: url("space.jpg"); */
   background-size: cover;
   background-repeat: no-repeat;
 }
