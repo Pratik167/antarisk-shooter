@@ -10,7 +10,7 @@ canvas.style.backgroundImage = "url('space.jpg')";
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
-let tt=1;
+// let tt=1;
 
 const theme=new Audio("theme.mp3");
 const boosTheme= new Audio("bossMusic2.mp3");
@@ -30,14 +30,12 @@ const room=document.getElementById("level");
 
 const ship=new Ship(ctx, canvas);
 const bullets=[];
-
 const enemies=[];
+
 let levels=1;
 let maxEnemy=0;
 let eLeft=maxEnemy;
-
 let isBoss=false;
-
 let count=0;
 let lives=5;
 
@@ -67,25 +65,22 @@ eLeft=maxEnemy;
 room.textContent="Level:"+levels;
 levels+=1;
 enemyCount.textContent="Enemy Left:"+eLeft;
-if(isBoss==true)
+if(isBoss==true) // boss ko section for now
 {
   maxEnemy=1;
   eLeft=maxEnemy;
   enemyCount.textContent="Enemy Left:"+eLeft;
+  
   for(let i=0;i<maxEnemy;i++){
+
         const e=new Enemy(ctx,canvas);
+        e.image.src="ishowboss.png";
         e.position.x=Math.floor(Math.random()*(canvas.width-e.size.width));
         e.position.y=Math.floor(Math.random()*-100);
-        e.life=5;
+        e.size.width=100;
+        e.size.height=100;
+        e.life=20;
         e.speed=0.1;
-        ctx.beginPath();
-        ctx.fillStyle = "blue";
-        ctx.fillRect(
-          e.position.x,
-          e.position.y-10,
-          5,
-          e.size.height-40,
-        );
         enemies.push(e);
       }
 }
@@ -110,76 +105,53 @@ level();
   // },5000);
 
 
-//bullet spawn ra haraunee
-function bulletSpawn(){
 
 
-  for (let i=bullets.length-1;i>=0;i--){ 
-    
-      if (bullets[i].position.y<10||bullets[i].bulletHit) {
-        { 
-          bullets.splice(i,1); 
-        } 
-      }
-      else if(!bullets[i].bulletHit){
-        for(let j=0;j<enemies.length;j++){
-          let enemy=enemies[j];
-          if(bullets[i].position.x>=enemy.position.x&&bullets[i].position.x<enemy.position.x+enemy.size.width&&
-            bullets[i].position.y>enemy.position.y&&bullets[i].position.y<enemy.position.y+enemy.size.height)
-          {
-            enemy.healthBar-=25;
-            enemy.life--;
-            const hitt=new Audio("bomboclat.ogg");
-            hitt.play();
-            bullets[i].bulletHit=true;
-            if(enemy.life==0||enemy.healthBar==0)
-            {
-              enemy.isBlast=true;
-              eLeft--;
-              count+=1;
-            }
-            enemyCount.textContent="Enemy Left:"+eLeft;
-            if(eLeft==0)
-            {
-              level();
-            }
+////////////////////////////////////////////////////////
 
-            
-            score.textContent="Score:"+count;
-            console.log("layo");
-          }
-        }
-        bullets[i].draw();
-    bullets[i].moveUp(); 
-      }
-}
-}
-
-
-
-
-
-// gunda aaune ra goli soli lagne
-function enemySpawn(){
+function enemySpawn(){// gunda aaune ra goli soli lagne
   for (let i=0;i<enemies.length; i++){
     let enemy=enemies[i];
-    // if(isBoss==true)
-    // {
-    //   // enemy.speed=0.1;
-    //   enemy.life=5;
+    if(isBoss==true)///// bosss another section cause mathi rakhda chalena idk whyyyyy
+    {
       
-    // }
-    enemy.update();
+
+      enemy.healthBar=enemy.life*25;
+      enemy.update();
     enemy.draw();
-    ctx.beginPath();
-    if (enemy.position.y>0){
-    ctx.fillStyle = "red";
-    ctx.fillRect(
-    enemy.position.x,
-    enemy.position.y-10,
-    enemy.healthBar,
-    enemy.size.height-40,
-  );
+      ctx.beginPath();
+      if (enemy.position.y>0){
+      const bossName=document.getElementById("bossName");
+      bossName.style.position="absolute";
+      bossName.style.top=canvas.height-90;
+      bossName.style.left=canvas.width/2;
+      bossName.style.fontSize=30;
+      bossName.style.color="white";
+      bossName.textContent="IshowSpeed";
+
+
+        ctx.fillStyle = "blue";
+        ctx.fillRect(
+          canvas.width/2,
+          canvas.height-50,
+          enemy.healthBar,
+          enemy.size.height-80,
+        );}
+}
+else{
+  bossName.textContent="";
+  enemy.update();
+      enemy.draw();
+      ctx.beginPath();
+      if (enemy.position.y>0){
+      ctx.fillStyle = "red";
+      ctx.fillRect(
+      enemy.position.x,
+      enemy.position.y-10,
+      enemy.healthBar,
+      enemy.size.height-40,
+    );
+  }
 }
     if (enemy.position.y>canvas.height||(enemy.position.x<ship.position.x+ship.size.width&&
       enemy.position.x+enemy.size.width>ship.position.x&&
@@ -215,7 +187,7 @@ function enemySpawn(){
       
     }
     if(enemy.isBlast){
-      console.log("moryo");
+      
       enemies.splice(i,1);
       
     }
@@ -225,7 +197,62 @@ function enemySpawn(){
 }
 
 
+///////////////////////////////////////////////////
+//bullet spawn ra haraunee
+function bulletSpawn(){
 
+
+  for (let i=bullets.length-1;i>=0;i--){ 
+    
+      if (bullets[i].position.y<10||bullets[i].bulletHit) {
+        { 
+          bullets.splice(i,1); 
+        } 
+      }
+      else if(!bullets[i].bulletHit){
+        for(let j=0;j<enemies.length;j++){
+          let enemy=enemies[j];
+          if(bullets[i].position.x>=enemy.position.x&&bullets[i].position.x<enemy.position.x+enemy.size.width&&
+            bullets[i].position.y>enemy.position.y&&bullets[i].position.y<enemy.position.y+enemy.size.height)
+          {
+            console.log(enemy.life);
+            enemy.healthBar-=25;
+            enemy.life--;
+            
+            const hitt=new Audio("bomboclat.ogg");
+            hitt.play();
+            bullets[i].bulletHit=true;
+            if(enemy.life==0||enemy.healthBar==0)
+            {
+              enemy.isBlast=true;
+              eLeft--;
+              count+=1;
+            }
+            enemyCount.textContent="Enemy Left:"+eLeft;
+            if(eLeft==0)
+            {
+              level();
+            }
+
+            
+            score.textContent="Score:"+count;
+            
+          }
+        }
+        bullets[i].draw();
+    bullets[i].moveUp(); 
+      }
+}
+}
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////
 // chalne kura
 let keys=[];
 document.addEventListener("keydown",(event)=>
@@ -261,6 +288,7 @@ document.addEventListener("keyup",(e)=>{
   }
 })
 
+///////////////////////////////////////////
 //click garda bullter aauxa
 function pellet(){
   const fire=new Audio("pellet.ogg");
@@ -278,7 +306,7 @@ document.addEventListener("click", pellet);
 
 
 
-
+//////////////////////////////////////////////////
   function gameLoop(){
     requestAnimationFrame(gameLoop);
     ctx.clearRect(0,0,canvas.width,canvas.height);
